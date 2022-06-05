@@ -6,6 +6,7 @@ import subprocess
 import platform
 from time import sleep
 from cryptography.fernet import Fernet
+from stat import S_IREAD
 
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
@@ -33,6 +34,9 @@ def create_Sec_Key():
         SEC_KEY = Fernet.generate_key()
         with open(pathToKey + '/my_key.key', 'wb') as key_file:
             key_file.write(SEC_KEY)
+            #os.chmod(key_file, S_IREAD)
+        subprocess.run(["chmod", "-w", pathToKey + '/my_key.key'])
+        subprocess.run(["chmod", "go-r", pathToKey + '/my_key.key'])
 
 create_Sec_Key()
 
