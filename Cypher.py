@@ -20,7 +20,15 @@ except AssertionError as err:
     print(err)
     exit()
 
+if __name__ != "__main__":
+    exit()
+
 SEC_KEY = None
+#Colors for the interface
+LOCK_COLOR = '\033[91m'
+DESC_COLOR = '\033[94m'
+FULL_COLOR = '\033[93m'
+CLEAR_COLOR = '\033[0m'
 
 def create_Sec_Key():
     global SEC_KEY
@@ -34,40 +42,41 @@ def create_Sec_Key():
         SEC_KEY = Fernet.generate_key()
         with open(pathToKey + '/my_key.key', 'wb') as key_file:
             key_file.write(SEC_KEY)
-            #os.chmod(key_file, S_IREAD)
-        subprocess.run(["chmod", "-w", pathToKey + '/my_key.key'])
-        subprocess.run(["chmod", "go-r", pathToKey + '/my_key.key'])
+            os.chmod(key_file.name, S_IREAD)
+        #subprocess.run(["chmod", "-w", pathToKey + '/my_key.key'])
+        #subprocess.run(["chmod", "go-r", pathToKey + '/my_key.key'])
 
 create_Sec_Key()
 
-#Pone una interfaz grafica para la terminal
-print("""
-         _ _ _ _ _
-        |         |
-        |         |
-        |         |
- _ _ _ _|_ _ _ _ _|_ _ _ _ _
-|                           |
-|                           |
-|            * *            |
-|          *     *          |
-|           *   *           |
-|           *   *           |       
-|          *     *          |                 
-|         * * * * *         |
-|                           |
-|                           |
-|_ _ _ _ _ _ _ _ _ _ _ _ _ _|
-
+#Sets an interface for the script
+print(f""" {LOCK_COLOR}
+                __________
+                |        |
+                |        |
+                |        |
+        ________|________|__________
+        |                          |
+        |                          |
+        |            * *           |
+        |          *     *         |
+        |           *   *          |
+        |           *   *          |       
+        |          *     *         |                 
+        |         * * * * *        |
+        |                          |
+        |                          |
+        |__________________________|
+{CLEAR_COLOR}
+{DESC_COLOR}
 ==============================================
-****KEEP YOUR MESSAGES AND FILES SAFE
+    KEEP YOUR MESSAGES AND FILES SAFE
 ==============================================
+{CLEAR_COLOR}
+{FULL_COLOR}
 """)
 
 #Encrypts the message
 def encrypt(message):
-    #message = bytearray(message, 'UTF-8')
-    #bytes(message, 'UTF-8')
     return Fernet(SEC_KEY).encrypt(message)
     
 #Decrypts the message
@@ -83,7 +92,6 @@ def send_Message_By_Email(sender, password, reciever, message):
         with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
             server.login(sender, password)
             server.sendmail(sender, reciever, message)
-        print("Email Sent !!")
     except:
         raise
 
@@ -112,7 +120,6 @@ def send_File_By_Email(sender, password, reciever, subject, body, file):
         with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
             server.login(sender, password)
             server.sendmail(sender, reciever, msg)
-        print("Email Sent !!")
     except:
         raise
   
@@ -134,46 +141,51 @@ if opcion == 1:
     print(str(encryptedMessage).replace("b'", '').replace('\'', ''))
     sleep(2)
 
-    #Se pregunta al usuario si desea que se guarde su mensaje encriptado
+    #Ask if the message is going to be saved to a file
     choice = input("\nWould you like to save your encrypted message to a file (Yes/No) ")
     if choice == "Yes" or choice == "yes" or choice == "Y" or choice == "y":
         fileName = None 
         while True:
-            fileName = input("Enter the name of the file in which you want to save the message: ")
+            fileName = input("Enter the name of the file or path in which you want to save the message: ")
             #Valida que no se haya dejado el nombre el archivo en blanco
             if not fileName.isspace() and not len(fileName) == 0:
                 break
         try:
             with open(fileName, "wb") as file:
                 file.write(encryptedMessage)
+                os.chmod(file.name, S_IREAD)
                 print("File created succesfully")
                 sleep(2)
         except:
             print("Sorry, an error ocurred while creating the file")
     
-    #Se pregunta si se desea enviar el mensaje encriptado por correo
+    #Ask if the message is to be sent my email
     choice = input("\nDo you need to send your encrypted message by email (Yes/No) ")
     if choice == "Yes" or choice == "yes" or choice == "Y" or choice == "y":
         print("\nIMPORTANT !!! ONLY GMAIL ACCOUNTS CAN BE USED AS THE SENDER EMAIL")
-        #Se solicitan los datos necesarios para enviar el correo
-        sender = input("\tSender email address: ")
-        #De esta forma la clave no se va a ver mientras se escribe en la consola
+        print("YOU MUST ACTIVATE THE ACCESS FOR LESS SECURE APPS ON THE SENDER EMAIL !!! OR ELSE IT WON'T WORK")
+        sleep(3)
+        #Data for the email
+        sender = input("\n\tSender email address: ")
         password = getpass.getpass("\tPassword: ", stream=None)
         reciever = input("\tReciever email address: ")
         subject = "Subject: " + input("\tSubject: ") + "\n\n"
         messageToSend = subject + encryptedMessage
         try:
             send_Message_By_Email(sender, password, reciever, messageToSend)
+            print("\t\tMessage has been sent !!")
+            sleep(2)
         except smtplib.SMTPAuthenticationError:
-            print("An authentication error ocurred, please make sure to enter the right information of enable the option for less secure apps")
+            print("An authentication error ocurred, please make sure to enter the right information or enable the option for less secure apps")
         except smtplib.SMTPException:
             print("An error ocurred trying to send the email, please make sure you are using a correct gmail account")
 
 
 elif opcion == 2:
     text = bytes(input("Enter the message you want to decrypt: "), 'UTF-8')
-    print('-'*50, " Message decrypted ", '-'*50)
-    print(str(decrypt(text).replace("b'", '').replace('\'', '')))
+    print('-'*50, " Decrypted message", '-'*50)
+    print(str(decrypt(text)).replace("b'", '').replace('\'', ''))
+    #.replace("b'", '').replace('\'', '')
     sleep(2)
 
 elif opcion == 3:
@@ -197,13 +209,16 @@ elif opcion == 3:
         choice = input("\nDo you need to send the encrypted file by email (Yes/No): ")
         if choice == "Yes" or choice == "yes" or choice == "Y" or choice == "y":
             print("\nIMPORTANT !!! ONLY GMAIL ACCOUNTS CAN BE USED AS THE SENDER EMAIL")
-            sender = input("\tSENDER EMAIL ADDRESS: ")
+            print("YOU MUST ACTIVATE THE ACCESS FOR LESS SECURE APPS ON THE SENDER EMAIL !!! OR ELSE IT WON'T WORK")
+            sender = input("\n\tSENDER EMAIL ADDRESS: ")
             password = getpass.getpass("\tPASSWORD: ", stream=None)
             reciever = input("\tRECIEVER EMAIL ADDRESS: ")
             subject = input("\tSUBJECT: ")
             body = input("\tBODY: ")
             try:
                 send_File_By_Email(sender, password, reciever, subject, body, file)
+                print("\t\tFile has been sent !!")
+                sleep(2)
             except smtplib.SMTPAuthenticationError:
                 print("An authentication error ocurred, please make sure to enter the right information of enable the option for less secure apps")
             except smtplib.SMTPException:
