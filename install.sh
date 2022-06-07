@@ -1,4 +1,4 @@
 #!/bin/bash
 
-cp Cypher.py /usr/lib/python3.8
-mv Cypher /usr/local/bin
+sudo cp Cypher.py /usr/lib/python3.8/
+sudo mv Cypher /usr/bin/

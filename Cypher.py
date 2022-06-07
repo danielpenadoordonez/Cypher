@@ -26,8 +26,7 @@ if __name__ != "__main__":
 SEC_KEY = None
 #Colors for the interface
 LOCK_COLOR = '\033[91m'
-DESC_COLOR = '\033[94m'
-FULL_COLOR = '\033[93m'
+FULL_COLOR = '\033[94m'
 CLEAR_COLOR = '\033[0m'
 
 def create_Sec_Key():
@@ -36,11 +35,11 @@ def create_Sec_Key():
     if not os.path.exists(pathToKey):
         os.mkdir(pathToKey)
     try:
-        with open(pathToKey + '/my_key.key', 'rb') as key_file:
+        with open(pathToKey + '/.my_key.key', 'rb') as key_file:
             SEC_KEY = key_file.read()
     except FileNotFoundError:
         SEC_KEY = Fernet.generate_key()
-        with open(pathToKey + '/my_key.key', 'wb') as key_file:
+        with open(pathToKey + '/.my_key.key', 'wb') as key_file:
             key_file.write(SEC_KEY)
             os.chmod(key_file.name, S_IREAD)
         #subprocess.run(["chmod", "-w", pathToKey + '/my_key.key'])
@@ -66,11 +65,10 @@ print(f""" {LOCK_COLOR}
         |                          |
         |                          |
         |__________________________|
-{CLEAR_COLOR}
-{DESC_COLOR}
-==============================================
-    KEEP YOUR MESSAGES AND FILES SAFE
-==============================================
+        
+ ==============================================
+     KEEP YOUR MESSAGES AND FILES SAFE
+ ==============================================
 {CLEAR_COLOR}
 {FULL_COLOR}
 """)
