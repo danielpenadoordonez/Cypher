@@ -30,6 +30,9 @@ FULL_COLOR = '\033[94m'
 CLEAR_COLOR = '\033[0m'
 
 def create_Sec_Key():
+    """
+      Creates and saves the key used for encryption and decryption
+    """
     global SEC_KEY
     pathToKey = os.environ.get('HOME') + '/.sec'
     if not os.path.exists(pathToKey):
@@ -94,7 +97,7 @@ def send_Message_By_Email(sender, password, reciever, message):
         raise
 
 #Sends encrypted file by email
-def send_File_By_Email(sender, password, reciever, subject, body, file):
+def send_File_By_Email(sender, password, reciever, subject, body, file:str):
     msg = MIMEMultipart()
     msg['From'] = sender
     msg['To'] = reciever
@@ -106,7 +109,7 @@ def send_File_By_Email(sender, password, reciever, subject, body, file):
     part = MIMEBase("application", "octet-stream")
     part.set_payload(attachmente.read())
     encoders.encode_base64(part)
-    part.add_header("Content-Disposition", f"attachment; filename={file}")
+    part.add_header("Content-Disposition", f"attachment; filename={file.split('/')[-1]}")
     msg.attach(part)
     msg = msg.as_string()
 
