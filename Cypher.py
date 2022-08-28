@@ -13,13 +13,16 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email import encoders
 
+#Validation that this script can run only in Linux
 try:
     runningOS = platform.system()
     assert runningOS == "Linux", "This script can be used only in Linux"
 except AssertionError as err:
     print(err)
+    sleep(2)
     exit()
 
+#The script must be run directly
 if __name__ != "__main__":
     exit()
 
@@ -29,26 +32,32 @@ LOCK_COLOR = '\033[91m'
 FULL_COLOR = '\033[94m'
 CLEAR_COLOR = '\033[0m'
 
-def create_Sec_Key():
+def load_Sec_Key():
     """
-      Creates and saves the key used for encryption and decryption
+      Creates and saves the key used for encryption and decryption, if it already exists 
+      it is going to load it for its use
     """
     global SEC_KEY
+    #The path where the key is saved
     pathToKey = os.environ.get('HOME') + '/.sec'
+    #If the path does not exist then create it and secure it
     if not os.path.exists(pathToKey):
         os.mkdir(pathToKey)
+        subprocess.run(["chmod", "o+t", pathToKey])
+        subprocess.run(["chmod", "g-w", pathToKey])
+
     try:
+        #Attempt to load the key from the file
         with open(pathToKey + '/.my_key.key', 'rb') as key_file:
             SEC_KEY = key_file.read()
     except FileNotFoundError:
+        #If the file with the key does not exist create it
         SEC_KEY = Fernet.generate_key()
         with open(pathToKey + '/.my_key.key', 'wb') as key_file:
             key_file.write(SEC_KEY)
             os.chmod(key_file.name, S_IREAD)
-        #subprocess.run(["chmod", "-w", pathToKey + '/my_key.key'])
-        #subprocess.run(["chmod", "go-r", pathToKey + '/my_key.key'])
 
-create_Sec_Key()
+load_Sec_Key()
 
 #Sets an interface for the script
 print(f""" {LOCK_COLOR}
@@ -78,11 +87,15 @@ print(f""" {LOCK_COLOR}
 
 #Encrypts the message
 def encrypt(message):
-    return Fernet(SEC_KEY).encrypt(message)
+    for i in range(3):
+        message = Fernet(SEC_KEY).encrypt(message)
+    return message
     
 #Decrypts the message
-def decrypt(chipher):
-    return Fernet(SEC_KEY).decrypt(chipher)
+def decrypt(chypher):
+    for i in range(3):
+        chypher = Fernet(SEC_KEY).decrypt(chypher)
+    return chypher
 
 #Sends encrypted message by email
 def send_Message_By_Email(sender, password, reciever, message):
@@ -164,7 +177,7 @@ if opcion == 1:
     choice = input("\nDo you need to send your encrypted message by email (Yes/No) ")
     if choice == "Yes" or choice == "yes" or choice == "Y" or choice == "y":
         print("\nIMPORTANT !!! ONLY GMAIL ACCOUNTS CAN BE USED AS THE SENDER EMAIL")
-        print("YOU MUST ACTIVATE THE ACCESS FOR LESS SECURE APPS ON THE SENDER EMAIL !!! OR ELSE IT WON'T WORK")
+        print("YOU MUST INTRODUCE AN APP PASSWORD FOR YOU GMAIL ACCOUNT !!! OR ELSE IT WON'T WORK")
         sleep(3)
         #Data for the email
         sender = input("\n\tSender email address: ")
@@ -183,11 +196,15 @@ if opcion == 1:
 
 
 elif opcion == 2:
-    text = bytes(input("Enter the message you want to decrypt: "), 'UTF-8')
-    print('-'*50, " Decrypted message", '-'*50)
-    print(str(decrypt(text)).replace("b'", '').replace('\'', ''))
-    #.replace("b'", '').replace('\'', '')
-    sleep(2)
+    try:
+        text = bytes(input("Enter the message you want to decrypt: "), 'UTF-8')
+        print('-'*50, " Decrypted message", '-'*50)
+        print(str(decrypt(text)).replace("b'", '').replace('\'', ''))
+        #.replace("b'", '').replace('\'', '')
+        sleep(2)
+    except:
+        print("\n\tThis message is not encrypted! So the decryption won't work!\n")
+        sleep(2)
 
 elif opcion == 3:
     file = input("Enter the path or the name of the file you want to encrypt: ")
@@ -203,7 +220,7 @@ elif opcion == 3:
         #Y solo el creador del archivo puede leer el contenido encriptado
         subprocess.run(["chmod", "ug-w", file])
         subprocess.run(["chmod", "go-r", file])
-        print("File has been encrypted")
+        print("\n\tFile has been encrypted!!")
         sleep(2)
 
         #Se le pregunta al usuario si necesita enviar el archivo encriptado por correo
@@ -229,7 +246,11 @@ elif opcion == 3:
 
             
     except FileNotFoundError:
-        print("The File does not exist or is not located in this directory")
+        print("\n\tThe File does not exist or is not located in this directory")
+        sleep(2)
+    except:
+        print("\n\tEncryption failed, probably because the file already is encrypted")
+        sleep(2)
         
 elif opcion == 4:
     file = input("Enter the path or the name of the file you want to decrypt: ")
@@ -246,9 +267,13 @@ elif opcion == 4:
         with open(file, "wb") as f:
             f.write(fileDecrypted)
         
-        print("File has been decrypted")
+        print("\n\tFile has been decrypted!!")
         sleep(2)
     except FileNotFoundError:
-        print("The file does not exist or is not located in this directory")
+        print("\n\tThe file does not exist or is not located in this directory")
+        sleep(2)
+    except:
+        print("\n\tDecryption failed, probably because the file isn't encrypted")
+        sleep(2)
 
         
