@@ -198,8 +198,9 @@ if opcion == 1:
 elif opcion == 2:
     try:
         text = bytes(input("Enter the message you want to decrypt: "), 'UTF-8')
+        decryptedMessage = str(decrypt(text)).replace("b'", '').replace('\'', '')
         print('-'*50, " Decrypted message", '-'*50)
-        print(str(decrypt(text)).replace("b'", '').replace('\'', ''))
+        print(decryptedMessage)
         #.replace("b'", '').replace('\'', '')
         sleep(2)
     except:
