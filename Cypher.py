@@ -277,4 +277,5 @@ elif opcion == 4:
         print("\n\tDecryption failed, probably because the file isn't encrypted")
         sleep(2)
 
-        
+print(CLEAR_COLOR)
+
