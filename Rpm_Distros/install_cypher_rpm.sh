@@ -28,7 +28,7 @@ fi
 PYTHON_VERSION=`python3 -c 'import sys; print(sys.version_info[:][1])'`
 echo "...............Installing cypher..............."
 sleep 2
-sudo cp ../Cypher.py /usr/lib64/python3.$PYTHON_VERSION/
+sudo mv ../Cypher.py /usr/lib64/python3.$PYTHON_VERSION/
 sudo mv cypher /usr/bin/
 echo "cypher has been installed!!"
 sleep 1

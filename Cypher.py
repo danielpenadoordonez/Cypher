@@ -43,8 +43,7 @@ def load_Sec_Key():
     #If the path does not exist then create it and secure it
     if not os.path.exists(pathToKey):
         os.mkdir(pathToKey)
-        subprocess.run(["chmod", "o+t", pathToKey])
-        subprocess.run(["chmod", "g-w", pathToKey])
+        subprocess.run(["chmod", "700", pathToKey])
 
     try:
         #Attempt to load the key from the file
