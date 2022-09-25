@@ -8,8 +8,7 @@ if [ $?	-ne 0 ] ; then
 	read "Install Python3 (y/n)? " ANSWER
         
 	if [ $ANSWER == "Y" ] -o [ $ANSWER == "y" ] ; then
-		sudo apt update
-		sudo apt install python3
+		sudo yum install python3 -y
 	else
 		exit
 	fi
