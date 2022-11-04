@@ -220,7 +220,7 @@ elif opcion == 3:
         #Y solo el creador del archivo puede leer el contenido encriptado
         subprocess.run(["chmod", "ug-w", file])
         subprocess.run(["chmod", "go-r", file])
-        print("\n\tFile has been encrypted!!")
+        print(f"\n\t{file.split('/')[-1]} has been encrypted!!")
         sleep(2)
 
         #Se le pregunta al usuario si necesita enviar el archivo encriptado por correo
@@ -241,8 +241,8 @@ elif opcion == 3:
                 print("An authentication error ocurred, please make sure to enter the right information of enable the option for less secure apps")
             except smtplib.SMTPException:
                 print("An error ocurred trying to send the email, please make sure you are using a correct gmail account")
-            except Exception as ex:
-                print(str(ex))
+            except Exception as err:
+                print(str(err))
 
             
     except FileNotFoundError:
@@ -267,7 +267,7 @@ elif opcion == 4:
         with open(file, "wb") as f:
             f.write(fileDecrypted)
         
-        print("\n\tFile has been decrypted!!")
+        print(f"\n\t{file.split('/')[-1]} has been decrypted!!")
         sleep(2)
     except FileNotFoundError:
         print("\n\tThe file does not exist or is not located in this directory")
